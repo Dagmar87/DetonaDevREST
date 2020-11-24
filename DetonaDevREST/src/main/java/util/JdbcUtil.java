@@ -13,7 +13,7 @@ public class JdbcUtil {
 		try {
 			Class.forName("oracle.jdbc.OracleDriver");
 
-			conexao = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "CSA", "dagmar87");
+			conexao = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "DETONAREST", "DAGMAR87");
 
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
