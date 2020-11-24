@@ -15,7 +15,7 @@ public class TesteConexao {
 
                  conexao = DriverManager.getConnection(
 
-                		 "jdbc:oracle:thin:@localhost:1521:XE", "OFICINA", "OFICINA");
+                		 "jdbc:oracle:thin:@localhost:1521:XE", "DETONAREST", "DAGMAR87");
 
                  System.out.println("Conexao: " + conexao.toString());
                  
