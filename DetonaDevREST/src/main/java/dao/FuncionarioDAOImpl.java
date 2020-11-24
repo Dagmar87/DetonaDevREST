@@ -1,220 +1,49 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 
 import entidade.Funcionario;
-import util.JdbcUtil;
+import util.JpaUtil;
 
 public class FuncionarioDAOImpl implements FuncionarioDAO{
 
 	@Override
-	public void inserirFuncionario(Funcionario funcionario) {
+	public boolean inserirFuncionario(Funcionario funcionario) {
 		// TODO Auto-generated method stub
 		
-		String sql = "INSERT INTO FUNCIONARIO (NOME , CODIGO, SENHA, TELEFONE, EMAIL) VALUES (?, ?, ?, ?, ?)";
+		boolean retorno = true;
 		
-		Connection conexao = null;
+		EntityManager ent = JpaUtil.getEntityManager();
+		EntityTransaction trans = ent.getTransaction();
+		trans.begin();
 		
-		try {
+		Funcionario funBase = ent.find(Funcionario.class, funcionario.getCodigo());
+		
+		if(funBase == null){
 			
-			conexao = JdbcUtil.getConexao();
+			ent.persist(funcionario);
+			trans.commit();
 			
-			conexao.setAutoCommit(false);
+		} else {
 			
-			PreparedStatement ps = conexao.prepareStatement(sql);
+			return false;
 			
-			ps.setString(1, funcionario.getNome());
-			ps.setString(2, funcionario.getCodigo());
-			ps.setString(3, funcionario.getSenha());
-			ps.setString(4, funcionario.getTelefone());
-			ps.setString(5, funcionario.getEmail());
-			
-			ps.execute();
-			
-			ps.close();
-			conexao.commit();
-			conexao.close();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			if(conexao != null){
-				try {
-					conexao.rollback();
-				} catch (Exception e1) {
-					e1.printStackTrace();	
-				}
-			}
 		}
 		
+		ent.close();
+		return retorno;
 	}
 
 	@Override
-	public void editarFuncionario(Funcionario funcionario) {
+	public Funcionario buscarFuncionario(int codigoFuncionario) {
 		// TODO Auto-generated method stub
 		
-		String sql = "UPDATE FUNCIONARIO F SET F.NOME = ?, F.CODIGO = ?, F.SENHA = ?, F.TELEFONE = ?, F.EMAIL = ? "
-				   + " WHERE F.CODIGO = ?";
+		EntityManager ent = JpaUtil.getEntityManager();
 		
-		Connection conexao = null;
+		Funcionario retorno = ent.find(Funcionario.class, codigoFuncionario);
 		
-		try {
-			
-			conexao = JdbcUtil.getConexao();
-			
-			conexao.setAutoCommit(false);
-			
-			PreparedStatement ps = conexao.prepareStatement(sql);
-			
-			ps.setString(1, funcionario.getNome());
-			ps.setString(2, funcionario.getCodigo());
-			ps.setString(3, funcionario.getSenha());
-			ps.setString(4, funcionario.getTelefone());
-			ps.setString(5, funcionario.getEmail());
-			ps.setString(6, funcionario.getCodigo());
-			
-			ps.execute();
-			
-			ps.close();
-			conexao.commit();
-			conexao.close();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			if(conexao != null){
-				try {
-					conexao.rollback();
-				} catch (Exception e1) {
-					e1.printStackTrace();	
-				}
-			}
-		}
-		
-	}
-
-	@Override
-	public void deletarFuncionario(Funcionario funcionario) {
-		// TODO Auto-generated method stub
-		
-		String sql = "DELETE FROM FUNCIONARIO F WHERE F.CODIGO = ?";
-		
-		Connection conexao = null;
-		
-		try {
-			
-			conexao = JdbcUtil.getConexao();
-			
-			conexao.setAutoCommit(false);
-			
-			PreparedStatement ps = conexao.prepareStatement(sql);
-			
-			ps.setString(1, funcionario.getCodigo());
-			
-			ps.execute();
-			
-			ps.close();
-			conexao.commit();
-			conexao.close();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			if(conexao != null){
-				try {
-					conexao.rollback();
-				} catch (Exception e1) {
-					e1.printStackTrace();	
-				}
-			}
-		}
-		
-	}
-
-	@Override
-	public Funcionario pesquisarFuncionario(String codigo) {
-		// TODO Auto-generated method stub
-		
-		String sql = "SELECT F.NOME, F.CODIGO, F.SENHA, F.TELEFONE, F.EMAIL FROM FUNCIONARIO F WHERE F.CODIGO = ?";
-		
-		Funcionario funcionario = null;
-		
-		Connection conexao;
-		
-		try {
-			
-			conexao = JdbcUtil.getConexao();
-			
-			PreparedStatement ps = conexao.prepareStatement(sql);
-			
-			ps.setString(1, codigo);
-			
-			ResultSet res = ps.executeQuery();
-			
-			while(res.next()){
-				
-				funcionario = new Funcionario();
-				funcionario.setNome(res.getString("NOME"));
-				funcionario.setCodigo(res.getString("CODIGO"));
-				funcionario.setSenha(res.getString("SENHA"));
-				funcionario.setTelefone(res.getString("TELEFONE"));
-				funcionario.setEmail(res.getString("EMAIL"));
-				
-			}
-			
-			ps.close();
-			conexao.close();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return funcionario;
-	}
-
-	@Override
-	public List<Funcionario> listarTodos() {
-		// TODO Auto-generated method stub
-		
-		List<Funcionario> listaRetorno = new ArrayList<Funcionario>();
-		
-		String sql = "SELECT F.NOME, F.CODIGO, F.SENHA, F.TELEFONE, F.EMAIL FROM FUNCIONARIO F";
-		
-		System.out.println(sql);
-		
-		Connection conexao;
-		
-		try {
-			
-			conexao = JdbcUtil.getConexao();
-			
-			PreparedStatement ps = conexao.prepareStatement(sql);
-
-			ResultSet res = ps.executeQuery();
-			
-			while(res.next()){
-				
-				Funcionario funcionario = new Funcionario();
-				funcionario.setNome(res.getString("NOME"));
-				funcionario.setCodigo(res.getString("CODIGO"));
-				funcionario.setSenha(res.getString("SENHA"));
-				funcionario.setTelefone(res.getString("TELEFONE"));
-				funcionario.setEmail(res.getString("EMAIL"));
-				
-				listaRetorno.add(funcionario);
-				
-			}
-			
-			ps.close();
-			conexao.close();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return listaRetorno;
+		return retorno;
 	}
 
 }
